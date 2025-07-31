@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3/tsparticles.bundle.min.js"></script>
+</head>
+<body>
+<div id="tsparticles"></div>
+<div class="chat-container">
+    <h2>Chatbot</h2>
+    <imput type="text" id="chatInput" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
+    </imput>
+  </div>
+<script>
+// This function sends the user's imput to the chatbot backend
+tsParticles.load({
+      id: "tsparticles",
+      options: {
+        background: {
+          color: "#121212"
+        },
+        fpsLimit: 60,
+        interactivity: {
+          events: {
+            onClick: { enable: true, mode: "push" },
+            onHover: { enable: true, mode: "repulse" },
+            resize: true
+          },
+          modes: {
+            push: { quantity: 4 },
+            repulse: { distance: 100, duration: 0.4 }
+          }
+        },
+        particles: {
+          color: { value: "#FFFFFF" },
+          links: {
+            color: "#FFFFFF",
+            distance: 150,
+            enable: true,
+            opacity: 0.2,
+            width: 1
+          },
+          collisions: { enable: true },
+          move: {
+            direction: "none",
+            enable: true,
+            outMode: "bounce",
+            random: false,
+            speed: 1,
+            straight: false
+          },
+          number: {
+            density: { enable: true, area: 800 },
+            value: 60
+          },
+          opacity: { value: 0.5 },
+          shape: { type: "circle" },
+          size: { random: true, value: 3 }
+        },
+        detectRetina: true
+      }
+    });
+    function sendMessage() {
+      if (message !== "") {
+        appendMessage("You", message, "user");
+        input.value = "";
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+      if (message  !== "") {
+        fetch("/chat", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+          appendMessage("Bot", data.response, "bot");
+        })
+        .catch(error => {
+          appendMessage("Error", "Failed to reach server.", "bot");
+          console.error("Error:", error);
+        });
+      }
+    }
+  }
+    function appendMessage(sender, text, className) {
+      const chatBox = document.getElementById("chatBox");
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add(className);
+      messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+</body>
+</html>
